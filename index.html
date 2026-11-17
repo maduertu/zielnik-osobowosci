@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#edf0e5">
+  <meta name="description" content="Zielnik osobowości — przyjemny quiz, który odkryje, jaką rośliną leczniczą jesteś. Poznaj też naukowe ciekawostki o roślinach.">
+  <title>Zielnik osobowości — jaką rośliną jesteś?</title>
+  <style>
+    :root {
+      --ink:#263d30; --muted:#647565; --sage:#82977a; --sage-dark:#526b52;
+      --pale:#e8eee3; --paper:#faf8f0; --white:#fffefa; --line:#dce3d6;
+      --gold:#c4a66a; --shadow:0 18px 50px rgba(44,65,48,.09);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0; color:var(--ink); background:
+      radial-gradient(ellipse at 8% 8%,rgba(210,222,200,.45),transparent 32rem),
+      radial-gradient(ellipse at 95% 40%,rgba(235,225,197,.35),transparent 28rem),var(--paper);
+      font-family: ui-serif, Georgia, "Times New Roman", serif; line-height:1.6;
+    }
+    button{font:inherit}
+    .wrap{width:min(920px,calc(100% - 32px));margin:0 auto}
+    header{padding:22px 0 8px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+    .brand{font-family:ui-sans-serif,system-ui,sans-serif;letter-spacing:.13em;text-transform:uppercase;font-size:.72rem;color:var(--sage-dark);font-weight:700}
+    .top-note{font-family:ui-sans-serif,system-ui,sans-serif;font-size:.76rem;color:var(--muted)}
+    .hero{
+      margin:22px auto 26px; padding:clamp(28px,6vw,58px) clamp(20px,6vw,64px);
+      border:1px solid var(--line);border-radius:28px;background:linear-gradient(135deg,#e9eee3 0%,#f5f1e5 100%);
+      box-shadow:var(--shadow);text-align:center;position:relative;overflow:hidden;
+    }
+    .hero:before,.hero:after{content:"";position:absolute;width:180px;height:180px;border:1px solid rgba(101,128,95,.2);border-radius:50%;pointer-events:none}
+    .hero:before{left:-100px;top:-90px}.hero:after{right:-110px;bottom:-115px}
+    .eyebrow{font:700 .68rem/1.4 ui-sans-serif,system-ui,sans-serif;letter-spacing:.19em;text-transform:uppercase;color:var(--sage-dark)}
+    h1{font-size:clamp(2.5rem,7vw,4.8rem);line-height:1.02;letter-spacing:-.045em;margin:16px 0 12px;font-weight:500}
+    .subtitle{font-size:clamp(1rem,2.3vw,1.18rem);color:#5b6d5d;max-width:550px;margin:0 auto}
+    .botanical{font-size:2.25rem;letter-spacing:.35em;margin:16px 0 2px}
+    .intro{max-width:680px;margin:0 auto 26px;text-align:center;color:var(--muted);font-size:.98rem}
+    .quiz-card,.result-card,.science-card{background:var(--white);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+    .quiz-card{padding:clamp(20px,4vw,38px)}
+    .progress-head{display:flex;justify-content:space-between;gap:12px;align-items:center;font:600 .78rem ui-sans-serif,system-ui,sans-serif;color:var(--muted);margin-bottom:10px}
+    .progress{height:7px;border-radius:20px;background:#edf0e9;overflow:hidden}
+    .progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#8fa486,#bdc9a6);border-radius:20px;transition:width .35s}
+    .question{margin:28px 0 18px;font-size:clamp(1.35rem,3vw,1.8rem);font-weight:500;line-height:1.25}
+    .q-number{font:700 .72rem ui-sans-serif,system-ui,sans-serif;letter-spacing:.15em;text-transform:uppercase;color:#879982;margin-bottom:8px}
+    .answers{display:grid;gap:11px}
+    .answer{
+      width:100%;text-align:left;padding:15px 17px;border:1px solid var(--line);border-radius:14px;
+      background:#fffefa;color:var(--ink);cursor:pointer;transition:.2s;display:flex;gap:13px;align-items:center;
+    }
+    .answer:hover{border-color:#9cac94;background:#f7f9f3;transform:translateY(-1px)}
+    .answer[aria-pressed="true"]{border-color:var(--sage-dark);background:#edf2e9;box-shadow:inset 0 0 0 1px var(--sage-dark)}
+    .answer .dot{width:19px;height:19px;border:1.5px solid #aab7a4;border-radius:50%;flex:none;display:grid;place-items:center}
+    .answer[aria-pressed="true"] .dot:after{content:"";width:9px;height:9px;background:var(--sage-dark);border-radius:50%}
+    .controls{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:26px}
+    .btn{border:0;border-radius:999px;padding:12px 22px;background:var(--sage-dark);color:white;cursor:pointer;font:650 .88rem ui-sans-serif,system-ui,sans-serif;transition:.2s}
+    .btn:hover{background:#405a43;transform:translateY(-1px)}
+    .btn:disabled{opacity:.38;cursor:not-allowed;transform:none}
+    .btn.secondary{background:transparent;color:var(--sage-dark);border:1px solid var(--line)}
+    .btn.secondary:hover{background:#f2f5ef}
+    .hint{font: .78rem ui-sans-serif,system-ui,sans-serif;color:#849084;text-align:center;margin:15px 0 0}
+    .result-card{display:none;margin-top:24px;overflow:hidden}
+    .result-top{padding:clamp(24px,5vw,42px);text-align:center;background:linear-gradient(145deg,#e8eee3,#f5f0e3)}
+    .result-symbol{font-size:4rem;line-height:1.2;margin:12px 0}
+    .result-kicker{font:700 .68rem ui-sans-serif,system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--sage-dark)}
+    .result-top h2{font-size:clamp(2rem,5vw,3.1rem);line-height:1.08;margin:8px 0 4px;font-weight:500}
+    .latin{font-style:italic;color:#68796a}
+    .personality{max-width:620px;margin:18px auto 0;color:#4e6251}
+    .result-body{padding:clamp(22px,5vw,38px)}
+    .trait{padding:17px 20px;border-left:3px solid var(--gold);background:#faf8f0;font-size:1.1rem;font-style:italic;margin-bottom:24px}
+    h3{font-size:1.25rem;font-weight:500;margin:20px 0 8px}
+    .fact{color:#526454}
+    .source-link{display:inline-block;margin-top:12px;color:var(--sage-dark);font:650 .83rem ui-sans-serif,system-ui,sans-serif;text-underline-offset:4px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+    .science{margin:28px 0 42px;padding:24px 26px}
+    .science h2{font-size:1.45rem;font-weight:500;margin:0 0 8px}
+    .science p,.science li{color:var(--muted);font-size:.9rem}
+    .science ul{padding-left:20px;margin:10px 0}
+    a{color:var(--sage-dark)}
+    footer{text-align:center;padding:0 0 28px;color:#879184;font: .75rem ui-sans-serif,system-ui,sans-serif}
+    .leaf-divider{text-align:center;color:#a4b19a;letter-spacing:.5em;margin:24px 0}
+    @media(max-width:560px){header{align-items:flex-start}.top-note{max-width:130px;text-align:right}.controls .btn{padding:11px 16px}.science{padding:20px}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">✳ Zielnik osobowości</div>
+      <div class="top-note">mała podróż po świecie roślin</div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="eyebrow">Botaniczny quiz osobowości</div>
+        <div class="botanical" aria-hidden="true">✿ ❧ ✿</div>
+        <h1>Jaką rośliną<br>jesteś?</h1>
+        <p class="subtitle">Odpowiedz na kilka lekkich pytań i odkryj, która roślina najlepiej oddaje Twój charakter.</p>
+      </section>
+
+      <p class="intro">Nie ma tu dobrych ani złych odpowiedzi. Wybieraj intuicyjnie, a na końcu poznasz swój roślinny portret i kilka ciekawostek opartych na źródłach naukowych.</p>
+
+      <section class="quiz-card" id="quiz" aria-live="polite">
+        <div class="progress-head"><span id="stepLabel">PYTANIE 01 Z 05</span><span id="progressLabel">0%</span></div>
+        <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+        <div class="q-number" id="qNumber">ROZDZIAŁ PIERWSZY</div>
+        <h2 class="question" id="question">Jak najchętniej spędzasz wolny dzień?</h2>
+        <div class="answers" id="answers"></div>
+        <div class="controls">
+          <button class="btn secondary" id="backBtn" type="button" disabled>Wstecz</button>
+          <button class="btn" id="nextBtn" type="button" disabled>Dalej →</button>
+        </div>
+        <p class="hint">Pięć pytań · około jednej minuty</p>
+      </section>
+
+      <section class="result-card" id="result" aria-live="polite">
+        <div class="result-top">
+          <div class="result-kicker">Twój roślinny portret</div>
+          <div class="result-symbol" id="resultSymbol" aria-hidden="true">🌼</div>
+          <h2 id="resultName">Rumianek pospolity</h2>
+          <div class="latin" id="resultLatin">Matricaria chamomilla</div>
+          <p class="personality" id="resultDescription"></p>
+        </div>
+        <div class="result-body">
+          <div class="trait" id="resultTrait"></div>
+          <h3>Botaniczna ciekawostka naukowa</h3>
+          <p class="fact" id="resultFact"></p>
+          <a class="source-link" id="resultSource" href="#" target="_blank" rel="noopener noreferrer">Przeczytaj opracowanie NCCIH ↗</a>
+          <div class="actions">
+            <button class="btn" id="restartBtn" type="button">Rozwiąż ponownie ↻</button>
+            <button class="btn secondary" id="shareBtn" type="button">Udostępnij wynik ↗</button>
+          </div>
+          <p class="hint" id="shareHint" role="status"></p>
+        </div>
+      </section>
+
+      <div class="leaf-divider" aria-hidden="true">— ❧ —</div>
+
+      <section class="science science-card">
+        <h2>O naszym zielniku</h2>
+        <p>Quiz ma charakter wyłącznie rozrywkowy. Skojarzenia między roślinami a cechami osobowości są metaforyczne — nie wynikają z badań psychologicznych. Ciekawostki botaniczne i informacje o badaniach przygotowano na podstawie materiałów amerykańskiego National Center for Complementary and Integrative Health (NCCIH), działającego w strukturze NIH.</p>
+        <p><strong>Ważne:</strong> opisane badania nie oznaczają, że roślina jest odpowiednia dla każdego ani że należy ją stosować. Quiz nie stanowi porady medycznej, diagnozy ani rekomendacji leczenia.</p>
+        <ul>
+          <li><a href="https://www.nccih.nih.gov/health/chamomile" target="_blank" rel="noopener noreferrer">NCCIH — Chamomile (rumianek)</a></li>
+          <li><a href="https://www.nccih.nih.gov/health/lavender" target="_blank" rel="noopener noreferrer">NCCIH — Lavender (lawenda)</a></li>
+          <li><a href="https://www.nccih.nih.gov/health/peppermint-oil" target="_blank" rel="noopener noreferrer">NCCIH — Peppermint Oil (olejek miętowy)</a></li>
+          <li><a href="https://www.nccih.nih.gov/health/ginger" target="_blank" rel="noopener noreferrer">NCCIH — Ginger (imbir)</a></li>
+        </ul>
+      </section>
+    </main>
+    <footer>Stworzono z ciekawości świata roślin · Zielnik osobowości</footer>
+  </div>
+
+<script>
+const questions = [
+  {chapter:"ROZDZIAŁ PIERWSZY",text:"Jak najchętniej spędzasz wolny dzień?",answers:[
+    ["calm","W spokojnym miejscu, z książką i herbatą."],
+    ["nature","Na łonie natury, z dala od zgiełku."],
+    ["curious","Odkrywając nowe miejsca i pomysły."],
+    ["bold","Aktywnie! Zawsze mam coś do zrobienia."]
+  ]},
+  {chapter:"ROZDZIAŁ DRUGI",text:"Co najbardziej cenisz w relacjach?",answers:[
+    ["calm","Ciepło, troskę i poczucie bezpieczeństwa."],
+    ["nature","Zrozumienie i przestrzeń dla siebie."],
+    ["curious","Szczerość, humor i spontaniczność."],
+    ["bold","Lojalność i wzajemną motywację."]
+  ]},
+  {chapter:"ROZDZIAŁ TRZECI",text:"Wybierz krajobraz, który najbardziej do Ciebie przemawia.",answers:[
+    ["calm","Kwitnąca łąka w ciepłym słońcu."],
+    ["nature","Lawendowe pola o zachodzie słońca."],
+    ["curious","Leśny strumień i świeże powietrze."],
+    ["bold","Tropikalny ogród pełen intensywnych barw."]
+  ]},
+  {chapter:"ROZDZIAŁ CZWARTY",text:"Jak podchodzisz do niespodziewanych zmian?",answers:[
+    ["calm","Najpierw potrzebuję chwili, by wszystko przemyśleć."],
+    ["nature","Zachowuję spokój i szukam równowagi."],
+    ["curious","Traktuję je jak nową przygodę."],
+    ["bold","Działam! Lubię wyzwania."]
+  ]},
+  {chapter:"ROZDZIAŁ PIĄTY",text:"Które określenie najbardziej do Ciebie pasuje?",answers:[
+    ["calm","Empatyczna i opiekuńcza."],
+    ["nature","Refleksyjna i spokojna."],
+    ["curious","Ciekawa świata i pełna energii."],
+    ["bold","Odważna i zdeterminowana."]
+  ]}
+];
+
+const plants = {
+  calm:{name:"Rumianek pospolity",latin:"Matricaria chamomilla",symbol:"🌼",description:"Jesteś osobą, która dostrzega znaczenie drobnych gestów. Ceniasz bliskość, spokój i autentyczne relacje. Twoją mocną stroną jest empatia i umiejętność tworzenia przyjaznej atmosfery.",trait:"„Wrażliwość jest Twoją siłą.”",fact:"Rumianek jest jedną z dobrze poznanych roślin zielarskich. Badania nad jego zastosowaniem w różnych dolegliwościach przynoszą jednak niejednoznaczne wyniki. Wstępne badania dotyczyły m.in. preparatów rumiankowych w kontekście objawów lękowych.",url:"https://www.nccih.nih.gov/health/chamomile"},
+  nature:{name:"Lawenda wąskolistna",latin:"Lavandula angustifolia",symbol:"💜",description:"Masz w sobie harmonię i zamiłowanie do piękna. Lubisz patrzeć na świat z własnej perspektywy, cenisz przestrzeń i głębokie rozmowy. Potrafisz odnaleźć równowagę nawet w intensywnym otoczeniu.",trait:"„Twój spokój nie oznacza braku siły.”",fact:"Lawenda jest badana m.in. pod kątem wpływu jej preparatów na objawy lękowe. Niektóre badania wskazują na możliwe korzyści, ale potrzebne są dalsze, wysokiej jakości badania.",url:"https://www.nccih.nih.gov/health/lavender"},
+  curious:{name:"Mięta pieprzowa",latin:"Mentha × piperita",symbol:"🌿",description:"Jesteś ciekawa świata, otwarta na nowe doświadczenia i pełna pomysłów. Nie lubisz monotonii. Twoja energia i naturalna ciekawość sprawiają, że zawsze potrafisz znaleźć coś interesującego.",trait:"„Ciekawość otwiera nowe możliwości.”",fact:"Olejek miętowy w kapsułkach dojelitowych był badany u dorosłych z zespołem jelita drażliwego. Przeglądy badań wskazują na możliwą poprawę niektórych objawów, choć mogą występować działania niepożądane. Wyników tych nie należy przenosić na każdą postać mięty.",url:"https://www.nccih.nih.gov/health/peppermint-oil"},
+  bold:{name:"Imbir lekarski",latin:"Zingiber officinale",symbol:"🫚",description:"Masz w sobie dużo inicjatywy i odwagi. Nie boisz się wyzwań, a trudniejsze sytuacje traktujesz jako okazję do zdobywania doświadczeń. Twoimi atutami są wytrwałość i zdecydowanie.",trait:"„Twoja energia inspiruje do działania.”",fact:"Kłącze imbiru jest przedmiotem wielu badań klinicznych. Istnieją dowody na jego możliwą skuteczność w łagodzeniu nudności związanych z ciążą. Wyniki badań dotyczących innych zastosowań są mniej jednoznaczne.",url:"https://www.nccih.nih.gov/health/ginger"}
+};
+
+let current = 0;
+const chosen = Array(questions.length).fill(null);
+const $ = id => document.getElementById(id);
+
+function renderQuestion(){
+  const q = questions[current];
+  $("stepLabel").textContent = `PYTANIE ${String(current+1).padStart(2,"0")} Z 05`;
+  $("progressLabel").textContent = `${Math.round(current/questions.length*100)}%`;
+  $("progressBar").style.width = `${current/questions.length*100}%`;
+  $("qNumber").textContent = q.chapter;
+  $("question").textContent = q.text;
+  $("answers").innerHTML = "";
+  q.answers.forEach(([key,label])=>{
+    const b=document.createElement("button");
+    b.type="button"; b.className="answer"; b.setAttribute("aria-pressed",String(chosen[current]===key));
+    const dot=document.createElement("span");dot.className="dot";dot.setAttribute("aria-hidden","true");
+    const txt=document.createElement("span");txt.textContent=label;
+    b.append(dot,txt);
+    b.addEventListener("click",()=>{chosen[current]=key;renderQuestion();});
+    $("answers").appendChild(b);
+  });
+  $("backBtn").disabled=current===0;
+  $("nextBtn").disabled=!chosen[current];
+  $("nextBtn").textContent=current===questions.length-1?"Odkryj mój wynik ✿":"Dalej →";
+}
+function calculateResult(){
+  const counts={calm:0,nature:0,curious:0,bold:0};
+  chosen.forEach(k=>counts[k]++);
+  // Stała kolejność rozstrzyga remisy w przewidywalny sposób.
+  return Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0];
+}
+function showResult(){
+  const p=plants[calculateResult()];
+  $("resultSymbol").textContent=p.symbol;
+  $("resultName").textContent=p.name;
+  $("resultLatin").textContent=p.latin;
+  $("resultDescription").textContent=p.description;
+  $("resultTrait").textContent=p.trait;
+  $("resultFact").textContent=p.fact;
+  $("resultSource").href=p.url;
+  $("quiz").style.display="none";
+  $("result").style.display="block";
+  $("progressBar").style.width="100%";
+  window.scrollTo({top:$("result").getBoundingClientRect().top+window.scrollY-18,behavior:"smooth"});
+}
+$("backBtn").addEventListener("click",()=>{if(current>0){current--;renderQuestion();}});
+$("nextBtn").addEventListener("click",()=>{if(!chosen[current])return;if(current<questions.length-1){current++;renderQuestion();}else showResult();});
+$("restartBtn").addEventListener("click",()=>{current=0;chosen.fill(null);$("result").style.display="none";$("quiz").style.display="block";renderQuestion();window.scrollTo({top:$("quiz").offsetTop-16,behavior:"smooth"});});
+$("shareBtn").addEventListener("click",async()=>{
+  const p=plants[calculateResult()];
+  const data={title:"Zielnik osobowości",text:`W quizie „Zielnik osobowości” wyszło mi: ${p.name} (${p.latin}) 🌿 Sprawdź, jaką rośliną jesteś!`,url:location.href};
+  try{
+    if(navigator.share){await navigator.share(data);$("shareHint").textContent="Dziękujemy za udostępnienie!";}
+    else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(data.text+" "+data.url);$("shareHint").textContent="Tekst z linkiem skopiowany.";}
+    else{$("shareHint").textContent="Skopiuj adres strony z paska przeglądarki, aby go udostępnić.";}
+  }catch(e){if(e.name!=="AbortError")$("shareHint").textContent="Skopiuj adres strony z paska przeglądarki, aby go udostępnić.";}
+});
+renderQuestion();
+</script>
+</body>
+</html>
